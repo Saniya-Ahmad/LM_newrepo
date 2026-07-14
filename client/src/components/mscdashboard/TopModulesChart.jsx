@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   ResponsiveContainer,
   BarChart,
@@ -9,8 +10,6 @@ import {
   CartesianGrid,
   Cell,
 } from "recharts";
-
-import { moduleData } from "../../data/dashboardData";
 
 const colors = [
   "#2563EB",
@@ -24,20 +23,40 @@ const colors = [
 ];
 
 const TopModulesChart = ({ selectedPeriod }) => {
-  const data = moduleData[selectedPeriod];
+    const [data, setData] = useState([]);
+
+    useEffect(() => {
+      fetchModules();
+    }, [selectedPeriod]);
+    
+    const fetchModules = async () => {
+      try {
+    
+        const response = await axios.get(
+          `http://localhost:5001/api/dashboard/top-modules?period=${selectedPeriod}`
+        );
+    
+        setData(response.data);
+    
+      } catch (err) {
+    
+        console.error(err);
+    
+      }
+    };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6 dark:bg-slate-900 dark:border dark:border-slate-800">
+    <div className="bg-white rounded-2xl shadow-sm p-6">
 
       <div className="flex justify-between items-center mb-6">
 
         <div>
 
-          <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+          <h2 className="text-base font-semibold">
             Top Modules by Peak Concurrent ({selectedPeriod})
           </h2>
 
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Most frequently used software modules
           </p>
 
@@ -45,7 +64,7 @@ const TopModulesChart = ({ selectedPeriod }) => {
 
         <div className="flex items-center gap-2">
 
-          <span className="text-xs text-slate-500 dark:text-slate-400">
+          <span className="text-xs text-slate-500">
             View by:
           </span>
 

@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+
 import {
   ResponsiveContainer,
   AreaChart,
@@ -9,23 +11,42 @@ import {
   CartesianGrid,
 } from "recharts";
 
-import { trendData } from "../../data/dashboardData";
-
 const TrendChart = ({ selectedPeriod }) => {
-  const data = trendData[selectedPeriod];
+
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    fetchTrend();
+  }, [selectedPeriod]);
+
+  const fetchTrend = async () => {
+    try {
+
+      const response = await axios.get(
+        `http://localhost:5001/api/dashboard/trend?period=${selectedPeriod}`
+      );
+
+      setData(response.data);
+
+    } catch (err) {
+
+      console.error("Trend Error:", err);
+
+    }
+  };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6 dark:bg-slate-900 dark:border dark:border-slate-800">
+    <div className="bg-white rounded-2xl shadow-sm p-6">
 
       <div className="flex justify-between items-center mb-6">
 
         <div>
 
-          <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+          <h2 className="text-base font-semibold">
             Peak Concurrent Trend ({selectedPeriod})
           </h2>
 
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Peak concurrent license usage
           </p>
 
@@ -33,7 +54,7 @@ const TrendChart = ({ selectedPeriod }) => {
 
         <div className="flex items-center gap-2">
 
-          <span className="text-xs text-slate-500 dark:text-slate-400">
+          <span className="text-xs text-slate-500">
             Metric:
           </span>
 
@@ -62,7 +83,6 @@ const TrendChart = ({ selectedPeriod }) => {
               x2="0"
               y2="1"
             >
-
               <stop
                 offset="5%"
                 stopColor="#2563EB"

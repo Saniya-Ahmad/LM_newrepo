@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 
-import Sidebar from "../components/mscdashboard/Sidebar";
 import Header from "../components/mscdashboard/Header";
 import KPICards from "../components/mscdashboard/KPICards";
 import AnalyticsCharts from "../components/mscdashboard/AnalyticsCharts";
@@ -13,7 +12,7 @@ const MSCDashboard = () => {
 
       {/* Sidebar */}
 
-      <Sidebar />
+
 
       {/* Main Content */}
 
