@@ -40,24 +40,27 @@ const ModuleMultiSelect = ({
 
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-3 border rounded-xl px-4 py-2 bg-white shadow-sm hover:bg-slate-50"
+        className="flex items-center gap-3 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 bg-white dark:bg-slate-900 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition"
       >
 
-        <span className="font-medium">
+        <span className="font-medium text-slate-900 dark:text-white">
           Modules
         </span>
 
-        <span className="text-slate-500 text-sm">
+        <span className="text-slate-500 dark:text-slate-400 text-sm">
           {selectedModules.length} selected
         </span>
 
-        <ChevronDown size={18} />
+        <ChevronDown
+          size={18}
+          className="text-slate-600 dark:text-slate-300"
+        />
 
       </button>
 
       {open && (
 
-        <div className="absolute right-0 mt-2 w-64 max-w-[90vw] bg-white rounded-xl shadow-lg border z-50 p-3 overflow-y-auto max-h-80">
+        <div className="absolute right-0 mt-2 w-64 max-w-[90vw] bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 z-50 p-3 overflow-y-auto max-h-80">
 
           <div className="space-y-2">
 
@@ -74,7 +77,7 @@ const ModuleMultiSelect = ({
                   onChange={() => handleToggle(module)}
                 />
 
-                <span className="text-sm">
+                <span className="text-sm text-slate-700 dark:text-slate-200">
                   {module}
                 </span>
 
@@ -84,7 +87,7 @@ const ModuleMultiSelect = ({
 
             {allModules.length === 0 && (
 
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 No modules available
               </p>
 

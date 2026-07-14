@@ -46,18 +46,16 @@ const ModuleOverview = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6 h-full">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 p-6 h-full">
 
-      <h2 className="text-lg font-semibold mb-5">
+      <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-5">
         Module Overview
       </h2>
 
       <select
         value={selectedModule}
-        onChange={(e) =>
-          setSelectedModule(e.target.value)
-        }
-        className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        onChange={(e) => setSelectedModule(e.target.value)}
+        className="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         {modules.map((module) => (
           <option
@@ -71,18 +69,18 @@ const ModuleOverview = ({
 
       <div className="grid grid-cols-2 gap-4 mt-6">
 
-        <div className="bg-slate-50 rounded-xl p-3">
-          <p className="text-sm text-slate-500">
+        <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Current Peak
           </p>
 
-          <h2 className="text-3xl font-bold mt-2">
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mt-2">
             {data.currentPeak ?? "-"}
           </h2>
         </div>
 
-        <div className="bg-slate-50 rounded-xl p-3">
-          <p className="text-sm text-slate-500">
+        <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Predicted Peak
           </p>
 
@@ -91,8 +89,8 @@ const ModuleOverview = ({
           </h2>
         </div>
 
-        <div className="bg-slate-50 rounded-xl p-3">
-          <p className="text-sm text-slate-500">
+        <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Difference
           </p>
 
@@ -109,8 +107,8 @@ const ModuleOverview = ({
           </h2>
         </div>
 
-        <div className="bg-slate-50 rounded-xl p-3">
-          <p className="text-sm text-slate-500">
+        <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Expected Change
           </p>
 
@@ -126,8 +124,8 @@ const ModuleOverview = ({
           </h2>
         </div>
 
-        <div className="bg-slate-50 rounded-xl p-3">
-          <p className="text-sm text-slate-500 mb-3">
+        <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
             Status
           </p>
 
@@ -138,8 +136,8 @@ const ModuleOverview = ({
           </span>
         </div>
 
-        <div className="bg-slate-50 rounded-xl p-3">
-          <p className="text-sm text-slate-500 mb-3">
+        <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
             Priority
           </p>
 

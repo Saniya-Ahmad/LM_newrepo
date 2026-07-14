@@ -96,7 +96,16 @@ const KPICards = ({ selectedPeriod }) => {
           return (
             <div
               key={card.title}
-              className="bg-white rounded-xl border border-slate-200 px-3 py-2.5 shadow-sm hover:shadow-md transition"
+              className="bg-white
+dark:bg-slate-900
+border border-slate-200
+dark:border-slate-700
+rounded-xl
+px-3 py-2.5
+shadow-sm
+hover:shadow-md
+transition
+"
             >
               <div className="flex items-center gap-3">
                 <div
@@ -109,11 +118,11 @@ const KPICards = ({ selectedPeriod }) => {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-semibold text-slate-500 leading-4">
+                  <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 leading-4">
                     {card.title}
                   </p>
 
-                  <h2 className="text-[22px] font-bold text-slate-900 mt-1">
+                  <h2 className="text-[22px] font-bold text-slate-900 dark:text-white mt-1">
                     {Number(card.value).toLocaleString()}
                   </h2>
                 </div>
@@ -144,7 +153,7 @@ const KPICards = ({ selectedPeriod }) => {
 
                 <span className="ml-1 text-slate-400">
   {selectedPeriod === "Daily"
-    ? "vs previous day"
+    ? "vs last day"
     : selectedPeriod === "Weekly"
     ? "vs last week"
     : "vs last month"}

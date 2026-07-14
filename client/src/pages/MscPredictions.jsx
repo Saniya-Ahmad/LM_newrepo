@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-
 import PredictionHeader from "../components/xgboost/PredictionHeader";
 import PredictionTrend from "../components/xgboost/PredictionTrend";
 import ModuleOverview from "../components/xgboost/ModuleOverview";
@@ -10,11 +9,9 @@ import PredictionSummary from "../components/xgboost/PredictionSummary";
 import ModuleMultiSelect from "../components/xgboost/ModuleMultiSelect";
 
 const MscPredictions = () => {
-
   const [selectedPeriod, setSelectedPeriod] = useState("Daily");
 
   const [selectedModules, setSelectedModules] = useState([]);
-
   const [selectedModule, setSelectedModule] = useState("");
 
   const [predictions, setPredictions] = useState([]);
@@ -28,7 +25,6 @@ const MscPredictions = () => {
   }, [selectedPeriod]);
 
   useEffect(() => {
-
     if (predictions.length === 0) {
       setSelectedModule("");
       setSelectedModules([]);
@@ -48,71 +44,60 @@ const MscPredictions = () => {
         .slice(0, 4)
         .map((item) => item.module)
     );
-
   }, [predictions]);
 
   const fetchPredictions = async () => {
-
     try {
-  
       setLoading(true);
-  
-      const [predictionResponse, trendResponse] = await Promise.all([
-  
-        axios.get(
-          `http://localhost:5001/api/msc/predictions/predictions?period=${selectedPeriod}`
-        ),
-  
-        axios.get(
-          `http://localhost:5001/api/msc/predictions/trend?period=${selectedPeriod}`
-        ),
-  
-      ]);
-  
-      if (predictionResponse.data.status === "insufficient_data") {
-  
+
+      const [predictionResponse, trendResponse] =
+        await Promise.all([
+          axios.get(
+            `http://localhost:5001/api/msc/predictions/predictions?period=${selectedPeriod}`
+          ),
+          axios.get(
+            `http://localhost:5001/api/msc/predictions/trend?period=${selectedPeriod}`
+          ),
+        ]);
+
+      if (
+        predictionResponse.data.status ===
+        "insufficient_data"
+      ) {
         setPredictions([]);
         setTrendData([]);
         setMetrics({});
-  
       } else {
-  
         setPredictions(
           predictionResponse.data.predictions
         );
-  
+
         setMetrics(
           predictionResponse.data.metrics
         );
-  
+
         setTrendData(
           trendResponse.data.trend
         );
-  
       }
-  
     } catch (err) {
-  
-      console.error("Failed to fetch predictions:", err);
-  
+      console.error(
+        "Failed to fetch predictions:",
+        err
+      );
+
       setPredictions([]);
       setTrendData([]);
       setMetrics({});
-  
     } finally {
-  
       setLoading(false);
-  
     }
-  
   };
 
   return (
+    <div className="flex min-h-screen bg-slate-100 dark:bg-slate-950">
 
-    <div className="flex min-h-screen bg-slate-100">
-
-
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto bg-slate-100 dark:bg-slate-950 transition-colors duration-300">
 
         <PredictionHeader
           selectedPeriod={selectedPeriod}
@@ -128,12 +113,12 @@ const MscPredictions = () => {
 
             <div className="flex-1">
 
-            <PredictionTrend
-  selectedPeriod={selectedPeriod}
-  selectedModules={selectedModules}
-  trendData={trendData}
-  loading={loading}
-/>
+              <PredictionTrend
+                selectedPeriod={selectedPeriod}
+                selectedModules={selectedModules}
+                trendData={trendData}
+                loading={loading}
+              />
 
             </div>
 
@@ -187,9 +172,7 @@ const MscPredictions = () => {
       </div>
 
     </div>
-
   );
-
 };
 
 export default MscPredictions;

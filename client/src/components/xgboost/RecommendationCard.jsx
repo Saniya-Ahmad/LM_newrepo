@@ -71,10 +71,10 @@ const RecommendationCard = ({
   return (
 
     <div
-      className={`bg-white rounded-2xl shadow-sm p-6 border ${getBadgeStyle().split(" ")[2]}`}
+      className={`bg-white dark:bg-slate-900 rounded-2xl shadow-md border dark:border-slate-700 p-6 ${getBadgeStyle().split(" ")[2]}`}
     >
 
-      <h2 className="text-lg font-semibold mb-5">
+      <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-5">
         AI Recommendation
       </h2>
 
@@ -86,11 +86,11 @@ const RecommendationCard = ({
           {data.priority || "N/A"} Priority
         </span>
 
-        <span className="text-sm text-slate-500">
+        <span className="text-sm text-slate-500 dark:text-slate-400">
 
           Change
 
-          <span className="ml-2 font-bold text-slate-900">
+          <span className="ml-2 font-bold text-slate-900 dark:text-white">
 
             {data.change ?? "-"}%
 
@@ -102,7 +102,7 @@ const RecommendationCard = ({
 
       <div className="mt-6">
 
-        <h3 className="text-xl font-bold text-slate-900">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white">
 
           {data.recommendation || "No Recommendation"}
 
@@ -112,13 +112,13 @@ const RecommendationCard = ({
 
       <div className="mt-3">
 
-        <h4 className="font-semibold text-slate-700 mb-3">
+        <h4 className="font-semibold text-slate-700 dark:text-slate-300 mb-3">
 
           Why?
 
         </h4>
 
-        <ul className="space-y-2 text-sm text-slate-600 list-disc ml-5">
+        <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400 list-disc ml-5">
 
           {getReasons().map((reason) => (
 
@@ -134,13 +134,13 @@ const RecommendationCard = ({
 
       <div className="mt-6">
 
-        <h4 className="font-semibold text-slate-700 mb-3">
+        <h4 className="font-semibold text-slate-700 dark:text-slate-300 mb-3">
 
           Suggested Actions
 
         </h4>
 
-        <ul className="space-y-2 text-sm text-slate-600 list-disc ml-5">
+        <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400 list-disc ml-5">
 
           {getActions().map((action) => (
 

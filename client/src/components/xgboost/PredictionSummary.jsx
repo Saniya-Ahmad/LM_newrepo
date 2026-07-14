@@ -17,12 +17,12 @@ const PredictionSummary = ({
 
   if (!data.module) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm p-6">
-        <h2 className="text-lg font-semibold">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 p-6">
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
           Prediction Summary
         </h2>
 
-        <p className="text-slate-500 mt-4">
+        <p className="text-slate-500 dark:text-slate-400 mt-4">
           No prediction data available.
         </p>
       </div>
@@ -74,7 +74,6 @@ const PredictionSummary = ({
         data.currentDenied,
         data.predictedDenied
       ),
-      // Lower denied requests are better
       positive:
         data.predictedDenied <= data.currentDenied,
     },
@@ -95,17 +94,17 @@ const PredictionSummary = ({
 
   return (
 
-    <div className="bg-white rounded-2xl shadow-sm p-6">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 p-6">
 
       <div className="flex justify-between items-center mb-6">
 
         <div>
 
-          <h2 className="text-lg font-semibold">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
             Prediction Summary
           </h2>
 
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Current vs Predicted values
           </p>
 
@@ -113,7 +112,7 @@ const PredictionSummary = ({
 
         <div className="text-right">
 
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Model R²
           </p>
 
@@ -131,21 +130,21 @@ const PredictionSummary = ({
 
           <thead>
 
-            <tr className="border-b">
+            <tr className="border-b border-slate-200 dark:border-slate-700">
 
-              <th className="text-left py-3 text-sm font-semibold text-slate-600">
+              <th className="text-left py-3 text-sm font-semibold text-slate-600 dark:text-slate-300">
                 Metric
               </th>
 
-              <th className="text-center py-3 text-sm font-semibold text-slate-600">
+              <th className="text-center py-3 text-sm font-semibold text-slate-600 dark:text-slate-300">
                 Current
               </th>
 
-              <th className="text-center py-3 text-sm font-semibold text-slate-600">
+              <th className="text-center py-3 text-sm font-semibold text-slate-600 dark:text-slate-300">
                 Predicted
               </th>
 
-              <th className="text-center py-3 text-sm font-semibold text-slate-600">
+              <th className="text-center py-3 text-sm font-semibold text-slate-600 dark:text-slate-300">
                 Change
               </th>
 
@@ -159,18 +158,18 @@ const PredictionSummary = ({
 
               <tr
                 key={row.metric}
-                className="border-b last:border-0 hover:bg-slate-50"
+                className="border-b border-slate-200 dark:border-slate-700 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
               >
 
-                <td className="py-4 font-medium">
+                <td className="py-4 font-medium text-slate-900 dark:text-white">
                   {row.metric}
                 </td>
 
-                <td className="text-center">
+                <td className="text-center text-slate-700 dark:text-slate-300">
                   {row.current}
                 </td>
 
-                <td className="text-center font-semibold">
+                <td className="text-center font-semibold text-slate-900 dark:text-white">
                   {row.predicted}
                 </td>
 

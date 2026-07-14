@@ -10,15 +10,14 @@ import {
 } from "recharts";
 
 const pieColors = [
-    "#2563EB", // Blue - OUT
-    "#22C55E", // Green - IN
-    "#EF4444", // Red - DENIED
-    "#F59E0B", // Amber - QUEUED
-    "#8B5CF6", // Purple - DEQUEUED
-  ];
+  "#2563EB", // Blue - OUT
+  "#22C55E", // Green - IN
+  "#EF4444", // Red - DENIED
+  "#F59E0B", // Amber - QUEUED
+  "#8B5CF6", // Purple - DEQUEUED
+];
 
 const EventDistribution = ({ selectedPeriod }) => {
-
   const [data, setData] = useState([]);
 
   useEffect(() => {
@@ -26,21 +25,15 @@ const EventDistribution = ({ selectedPeriod }) => {
   }, [selectedPeriod]);
 
   const fetchDistribution = async () => {
-
     try {
-
       const response = await axios.get(
         `http://localhost:5001/api/msc/event-distribution?period=${selectedPeriod}`
       );
 
       setData(response.data);
-
     } catch (err) {
-
       console.error(err);
-
     }
-
   };
 
   const totalEvents = data.reduce(
@@ -49,9 +42,9 @@ const EventDistribution = ({ selectedPeriod }) => {
   );
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6 h-full">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 p-6 h-full">
 
-      <h2 className="text-lg font-semibold mb-6">
+      <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">
         Event Distribution ({selectedPeriod})
       </h2>
 
@@ -74,16 +67,12 @@ const EventDistribution = ({ selectedPeriod }) => {
                 stroke="#fff"
                 strokeWidth={2}
               >
-
                 {data.map((entry, index) => (
-
                   <Cell
                     key={entry.name}
                     fill={pieColors[index % pieColors.length]}
                   />
-
                 ))}
-
               </Pie>
 
               <Tooltip
@@ -106,11 +95,11 @@ const EventDistribution = ({ selectedPeriod }) => {
 
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
 
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Total Events
             </p>
 
-            <h3 className="text-2xl font-bold text-slate-900 mt-1">
+            <h3 className="text-3xl font-bold text-slate-900 dark:text-white mt-1">
               {totalEvents.toLocaleString()}
             </h3>
 
@@ -123,14 +112,12 @@ const EventDistribution = ({ selectedPeriod }) => {
           <div className="space-y-4">
 
             {data.map((item, index) => {
-
               const percentage =
                 totalEvents === 0
                   ? 0
                   : ((item.value / totalEvents) * 100).toFixed(1);
 
               return (
-
                 <div
                   key={item.name}
                   className="flex items-center justify-between"
@@ -146,7 +133,7 @@ const EventDistribution = ({ selectedPeriod }) => {
                       }}
                     />
 
-                    <span className="w-20 text-sm font-medium text-slate-700">
+                    <span className="w-20 text-sm font-medium text-slate-700 dark:text-slate-200">
                       {item.name}
                     </span>
 
@@ -154,25 +141,23 @@ const EventDistribution = ({ selectedPeriod }) => {
 
                   <div className="text-right">
 
-                    <div className="font-semibold text-slate-900 text-sm">
+                    <div className="font-semibold text-slate-900 dark:text-white text-sm">
                       {item.value.toLocaleString()}
                     </div>
 
-                    <div className="text-sm text-slate-500">
+                    <div className="text-sm text-slate-500 dark:text-slate-400">
                       ({percentage}%)
                     </div>
 
                   </div>
 
                 </div>
-
               );
-
             })}
 
           </div>
 
-          <p className="text-xs text-slate-400 mt-8 leading-5">
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-8 leading-5">
             * Percentages may not total exactly 100% due to rounding.
           </p>
 

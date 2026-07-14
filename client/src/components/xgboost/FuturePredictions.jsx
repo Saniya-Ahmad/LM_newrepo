@@ -8,28 +8,25 @@ const FuturePredictions = ({
   selectedModule,
   predictions = [],
 }) => {
-
   const data =
     predictions.find(
       (item) => item.module === selectedModule
     ) || {};
 
   if (!data.module) {
-
     return (
-      <div className="bg-white rounded-2xl shadow-sm p-6">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 p-6">
 
-        <h2 className="text-lg font-semibold mb-6">
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">
           Future Prediction
         </h2>
 
-        <p className="text-slate-500">
+        <p className="text-slate-500 dark:text-slate-400">
           No prediction available.
         </p>
 
       </div>
     );
-
   }
 
   const cards = [
@@ -81,10 +78,9 @@ const FuturePredictions = ({
   ];
 
   return (
+    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 p-6">
 
-    <div className="bg-white rounded-2xl shadow-sm p-6">
-
-      <h2 className="text-lg font-semibold mb-6">
+      <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">
         Future Prediction
       </h2>
 
@@ -94,18 +90,18 @@ const FuturePredictions = ({
 
           <div
             key={item.title}
-            className="border rounded-xl p-4 hover:bg-slate-50 transition"
+            className="border border-slate-200 dark:border-slate-700 rounded-xl p-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
           >
 
             <div className="flex justify-between items-center">
 
               <div>
 
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   {item.title}
                 </p>
 
-                <h2 className="text-xl font-bold text-slate-900 mt-2">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white mt-2">
                   {item.value}
                 </h2>
 
@@ -122,9 +118,7 @@ const FuturePredictions = ({
       </div>
 
     </div>
-
   );
-
 };
 
 export default FuturePredictions;
