@@ -30,7 +30,7 @@ const EventDistribution = ({ selectedPeriod }) => {
     try {
 
       const response = await axios.get(
-        `http://localhost:5001/api/dashboard/event-distribution?period=${selectedPeriod}`
+        `http://localhost:5001/api/msc/event-distribution?period=${selectedPeriod}`
       );
 
       setData(response.data);

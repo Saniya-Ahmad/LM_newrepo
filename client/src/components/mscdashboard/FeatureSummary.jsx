@@ -11,7 +11,7 @@ const FeatureSummary = ({ selectedPeriod }) => {
   const fetchSummary = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5001/api/dashboard/feature-summary?period=${selectedPeriod}`
+        `http://localhost:5001/api/msc/feature-summary?period=${selectedPeriod}`
       );
 
       setData(response.data);
@@ -33,7 +33,7 @@ const FeatureSummary = ({ selectedPeriod }) => {
         </p>
       </div>
 
-      <div className="h-[320px] overflow-y-auto overflow-x-hidden rounded-xl border border-slate-200">
+      <div className="h-[320px] overflow-y-auto overflow-x-auto rounded-xl border border-slate-200">
 
         <table className="w-full text-xs">
 

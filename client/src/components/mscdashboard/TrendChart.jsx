@@ -23,7 +23,7 @@ const TrendChart = ({ selectedPeriod }) => {
     try {
 
       const response = await axios.get(
-        `http://localhost:5001/api/dashboard/trend?period=${selectedPeriod}`
+        `http://localhost:5001/api/msc/trend?period=${selectedPeriod}`
       );
 
       setData(response.data);

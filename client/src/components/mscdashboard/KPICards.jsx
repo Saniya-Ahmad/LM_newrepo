@@ -22,7 +22,7 @@ const KPICards = ({ selectedPeriod }) => {
   const fetchKPIs = async () => {
     try {
       const { data } = await axios.get(
-        `http://localhost:5001/api/dashboard/kpis?period=${selectedPeriod}`
+        `http://localhost:5001/api/msc/kpis?period=${selectedPeriod}`
       );
 
       
