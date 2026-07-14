@@ -1,0 +1,25 @@
+{
+    "algorithm": "XGBoost Regressor",
+    "target": "Peak Concurrent Licenses",
+    "training_rows": 38,
+    "features": 12,
+    "feature_names": [
+        "checkout_count",
+        "checkin_count",
+        "denied_count",
+        "unique_users",
+        "active_sessions",
+        "month",
+        "day",
+        "day_of_week",
+        "week",
+        "lag1",
+        "lag7",
+        "rolling_mean_7"
+    ],
+    "mae": 0.275,
+    "rmse": 0.765,
+    "r2": 0.969,
+    "trained_on": "2026-07-11 23:10:19",
+    "model_file": "xgboost.pkl"
+}
