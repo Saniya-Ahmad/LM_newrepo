@@ -10,16 +10,18 @@ import {
   Legend,
 } from "recharts";
 
-const lineColors = {
-  ADAMS_View: "#2563EB",
-  Patran: "#10B981",
-  Solver: "#F59E0B",
-  Marc: "#EF4444",
-  SimManager: "#8B5CF6",
-  Easy5: "#06B6D4",
-  Nastran: "#F97316",
-  Adams_Post: "#EC4899",
-};
+const lineColors = [
+  "#2563EB", // Blue
+  "#10B981", // Green
+  "#F59E0B", // Orange
+  "#EF4444", // Red
+  "#8B5CF6", // Purple
+  "#06B6D4", // Cyan
+  "#F97316", // Dark Orange
+  "#EC4899", // Pink
+  "#84CC16", // Lime
+  "#14B8A6", // Teal
+];
 
 const PredictionTrend = ({
   selectedPeriod,
@@ -47,13 +49,10 @@ const PredictionTrend = ({
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 p-6">
-
       {/* Header */}
 
       <div className="flex justify-between items-center mb-6">
-
         <div>
-
           <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
             Prediction Trend ({selectedPeriod})
           </h2>
@@ -61,21 +60,14 @@ const PredictionTrend = ({
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Forecasted peak concurrent license demand
           </p>
-
         </div>
-
       </div>
 
       {/* Chart */}
 
       <ResponsiveContainer width="100%" height={420}>
-
         <LineChart data={data}>
-
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="#CBD5E1"
-          />
+          <CartesianGrid strokeDasharray="3 3" stroke="#CBD5E1" />
 
           <XAxis
             dataKey="label"
@@ -127,24 +119,19 @@ const PredictionTrend = ({
 
           <Legend />
 
-          {selectedModules.map((module) => (
-
+          {selectedModules.map((module, index) => (
             <Line
               key={module}
               type="monotone"
               dataKey={module}
-              stroke={lineColors[module]}
+              stroke={lineColors[index % lineColors.length]}
               strokeWidth={3}
               dot={false}
               activeDot={{ r: 5 }}
             />
-
           ))}
-
         </LineChart>
-
       </ResponsiveContainer>
-
     </div>
   );
 };

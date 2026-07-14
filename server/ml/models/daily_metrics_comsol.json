@@ -1,0 +1,10 @@
+{
+    "period": "Daily",
+    "mae": 1.04,
+    "rmse": 1.13,
+    "r2": 0.7139,
+    "trainingSamples": 25,
+    "testingSamples": 7,
+    "trainingRows": 32,
+    "trainedOn": "2026-07-14 21:45:59"
+}
