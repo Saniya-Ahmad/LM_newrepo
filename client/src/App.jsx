@@ -97,6 +97,25 @@ function Footer() {
     </footer>
   );
 }
+function UserDashboardLayout({ children }) {
+  const { theme } = useAuth();
+
+  return (
+    <div
+      className={`min-h-screen flex flex-col transition-colors duration-300 ${
+        theme === "dark"
+          ? "bg-slate-950 text-slate-100"
+          : "bg-slate-100 text-slate-900"
+      }`}
+    >
+      <AuthHeader />
+
+      {children}
+
+      <Footer />
+    </div>
+  );
+}
 
 export default function App() {
   return (
@@ -168,22 +187,17 @@ export default function App() {
           />
 
           <Route
-            path="/dashboard"
-            element={
-              <div className="min-h-screen bg-slate-950 text-slate-100 transition-colors duration-300 flex flex-col">
-                <Header />
-
-                <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10 flex-1">
-                  <Private>
-                    <DashboardForm />
-                  </Private>
-                </main>
-
-                <Footer />
-              </div>
-            }
-          />
-
+  path="/dashboard"
+  element={
+    <Private>
+      <UserDashboardLayout>
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10 flex-1 w-full">
+          <DashboardForm />
+        </main>
+      </UserDashboardLayout>
+    </Private>
+  }
+/>
           <Route
             path="/logs"
             element={

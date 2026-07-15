@@ -1,53 +1,14 @@
 import express from "express";
 
 import {
-  getPredictionTrend,
-  getFuturePredictions,
-  getPredictionSummary,
-  getRecommendations,
-  getModelInformation,
+  getPredictions,
+  getTrend,
 } from "../controllers/matlabPredictionController.js";
 
 const router = express.Router();
 
-/*
-|--------------------------------------------------------------------------
-| Prediction Trend Chart
-|--------------------------------------------------------------------------
-*/
+router.get("/predictions", getPredictions);
 
-router.get("/trend", getPredictionTrend);
-
-/*
-|--------------------------------------------------------------------------
-| Future Predictions Table
-|--------------------------------------------------------------------------
-*/
-
-router.get("/future", getFuturePredictions);
-
-/*
-|--------------------------------------------------------------------------
-| Prediction Summary Table
-|--------------------------------------------------------------------------
-*/
-
-router.get("/summary", getPredictionSummary);
-
-/*
-|--------------------------------------------------------------------------
-| Recommendation Panel
-|--------------------------------------------------------------------------
-*/
-
-router.get("/recommendations", getRecommendations);
-
-/*
-|--------------------------------------------------------------------------
-| Model Information Panel
-|--------------------------------------------------------------------------
-*/
-
-router.get("/model-info", getModelInformation);
+router.get("/trend", getTrend);
 
 export default router;

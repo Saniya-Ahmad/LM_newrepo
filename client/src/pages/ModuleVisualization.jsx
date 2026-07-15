@@ -339,15 +339,128 @@ export default function ModuleVisualization() {
           </div>
           {selectedModule ? (
             moduleLabData.length ? (
-              <ResponsiveContainer width="100%" height={320}>
-                <BarChart data={moduleLabData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-                  <XAxis type="number" stroke="#6B7280" />
-                  <YAxis dataKey="lab" type="category" stroke="#6B7280" width={120} />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#f59e0b" radius={[0, 8, 8, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="space-y-4">
+
+{moduleLabData.map((lab,index)=>(
+  
+<div
+ key={lab.lab}
+ className="rounded-2xl border border-slate-200 
+ p-4 dark:border-slate-700"
+>
+
+<div className="flex justify-between items-center">
+
+
+<div className="flex items-center gap-3">
+
+
+<div
+className="
+h-10 w-10 rounded-full
+bg-blue-100 text-blue-700
+flex items-center justify-center
+font-bold
+dark:bg-blue-900 dark:text-blue-300
+"
+>
+{index+1}
+</div>
+
+
+<div>
+
+<p className="
+font-semibold
+text-slate-900
+dark:text-white
+">
+{lab.lab}
+</p>
+
+
+<p className="
+text-xs text-slate-500
+">
+Rank #{index+1} laboratory
+</p>
+
+
+</div>
+
+
+</div>
+
+
+
+<div className="text-right">
+
+<p className="
+text-xl font-bold
+text-blue-600
+">
+{lab.count}
+</p>
+
+<p className="
+text-xs text-slate-500
+">
+requests
+</p>
+
+</div>
+
+
+</div>
+
+
+
+<div className="
+mt-4 h-3 rounded-full
+bg-slate-200
+dark:bg-slate-800
+overflow-hidden
+">
+
+<div
+className="
+h-full rounded-full
+bg-blue-600
+transition-all duration-500
+"
+style={{
+width:`${lab.percentage}%`
+}}
+/>
+
+</div>
+
+
+
+<div className="
+mt-2 flex justify-between
+text-xs text-slate-500
+">
+
+<span>
+Consumption share
+</span>
+
+
+<span>
+{lab.percentage}%
+</span>
+
+
+</div>
+
+
+</div>
+
+))}
+
+
+</div>
             ) : (
               <p className="text-sm text-slate-500">No lab usage data available for {selectedModule}.</p>
             )
