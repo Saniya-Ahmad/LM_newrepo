@@ -35,13 +35,17 @@ const FeatureSummary = ({ selectedPeriod }) => {
 
       <div className="h-[320px] overflow-y-auto overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
 
-        <table className="w-full text-xs">
+        <table className="w-full text-xs table-auto">
 
           <thead className="sticky top-0 bg-white dark:bg-slate-900 z-10 shadow-sm">
 
             <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400">
 
-              <th className="text-left py-3 pl-3 font-semibold">
+              <th className="text-left py-2 px-2 font-semibold">
+                Module
+              </th>
+
+              <th className="text-left py-3 px-3 font-semibold">
                 Feature
               </th>
 
@@ -82,18 +86,25 @@ const FeatureSummary = ({ selectedPeriod }) => {
             {data.map((row) => (
 
               <tr
-                key={row.feature}
+                key={`${row.module}-${row.feature}`}
                 className="border-b border-slate-200 dark:border-slate-700 last:border-0 even:bg-slate-50 dark:even:bg-slate-800/40 hover:bg-blue-50 dark:hover:bg-slate-800 transition"
               >
 
                 <td
                   className="py-3 pl-3 font-medium text-slate-700 dark:text-slate-200 whitespace-nowrap"
+                  title={row.module}
+                >
+                  {row.module}
+                </td>
+
+                <td
+                  className="py-2 px-3 text-slate-700 dark:text-slate-200 whitespace-nowrap"
                   title={row.feature}
                 >
                   {row.feature}
                 </td>
 
-                <td className="text-right pr-2 text-slate-700 dark:text-slate-200">
+                <td className="text-right pr-3 text-slate-700 dark:text-slate-200">
                   {Number(row.outCount).toLocaleString()}
                 </td>
 
@@ -117,7 +128,7 @@ const FeatureSummary = ({ selectedPeriod }) => {
                   {Number(row.peak).toLocaleString()}
                 </td>
 
-                <td className="text-right pr-3 text-slate-700 dark:text-slate-200">
+                <td className="text-right pr-2 text-slate-700 dark:text-slate-200">
                   {Number(row.users).toLocaleString()}
                 </td>
 

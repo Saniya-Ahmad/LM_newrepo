@@ -7,7 +7,10 @@ const RecommendationCard = ({
 
   const data =
     predictions.find(
-      (item) => item.module === selectedModule
+      (item) =>
+        item.feature === selectedModule ||
+        item.displayName === selectedModule ||
+        item.module === selectedModule
     ) || {};
 
   const getBadgeStyle = () => {
@@ -20,8 +23,11 @@ const RecommendationCard = ({
       case "Medium":
         return "bg-yellow-100 text-yellow-700 border-yellow-200";
 
-      default:
+      case "Low":
         return "bg-green-100 text-green-700 border-green-200";
+
+      default:
+        return "bg-slate-100 text-slate-700 border-slate-200";
 
     }
 
@@ -32,39 +38,54 @@ const RecommendationCard = ({
     if (!data.module) return [];
 
     return [
-      `Current peak usage is ${data.currentPeak}.`,
-      `Predicted peak usage is ${data.predictedPeak}.`,
-      `Expected change is ${data.change}%.`,
+      `Current licenses available: ${data.currentLicenses}.`,
+      `Current peak usage: ${data.currentPeak}.`,
+      `Predicted peak usage: ${data.predictedPeak}.`,
+      `Denied requests: ${data.currentDenied}.`,
+      ,
     ];
 
   };
 
   const getActions = () => {
 
-    switch (data.recommendation) {
+    if (!data.module) return [];
 
-      case "Increase Licenses":
-        return [
-          "Procure additional licenses.",
-          "Monitor peak utilization closely.",
-          "Review upcoming workload demand.",
-        ];
+    if (data.licensesToAdd > 0) {
 
-      case "Reduce Licenses":
-        return [
-          "Review under-utilized licenses.",
-          "Consider license reallocation.",
-          "Avoid unnecessary renewals.",
-        ];
-
-      default:
-        return [
-          "Current allocation appears sufficient.",
-          "Continue monitoring utilization.",
-          "Retrain the model after new data is available.",
-        ];
+      return [
+        `Add ${data.licensesToAdd} additional license(s).`,
+        "Monitor peak utilization after deployment.",
+        "Review future demand trends.",
+      ];
 
     }
+
+    if (data.licensesToRemove > 0) {
+
+      return [
+        `Remove ${data.licensesToRemove} unused license(s).`,
+        "Review under-utilized licenses.",
+        "Consider license reallocation.",
+      ];
+
+    }
+
+    if (data.currentDenied > 0) {
+
+      return [
+        "Monitor denied requests closely.",
+        "Investigate temporary license contention.",
+        "Retrain the prediction model periodically.",
+      ];
+
+    }
+
+    return [
+      "Current allocation appears sufficient.",
+      "Continue monitoring utilization.",
+      "Retrain the model after new data is available.",
+    ];
 
   };
 
@@ -108,9 +129,20 @@ const RecommendationCard = ({
 
         </h3>
 
+        {data.module && (
+
+          <div className="grid grid-cols-2 gap-4">
+
+            
+            
+
+          </div>
+
+        )}
+
       </div>
 
-      <div className="mt-3">
+      <div className="mt-6">
 
         <h4 className="font-semibold text-slate-700 dark:text-slate-300 mb-3">
 

@@ -12,10 +12,10 @@ const PredictionSummary = ({
 
   const data =
     predictions.find(
-      (item) => item.module === selectedModule
+      (item) => item.feature === selectedModule
     ) || {};
 
-  if (!data.module) {
+  if (!data.feature) {
     return (
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 p-6">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -31,12 +31,20 @@ const PredictionSummary = ({
 
   const calculateChange = (current, predicted) => {
 
-    if (current === 0) return "0%";
+    if (current === 0) {
+      return {
+        text: "N/A",
+        positive: null,
+      };
+    }
 
     const value =
       ((predicted - current) / current) * 100;
 
-    return `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
+    return {
+      text: `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`,
+      positive: value >= 0,
+    };
 
   };
 
@@ -46,48 +54,40 @@ const PredictionSummary = ({
       metric: "Peak Concurrent",
       current: data.currentPeak,
       predicted: data.predictedPeak,
-      change: calculateChange(
+      ...calculateChange(
         data.currentPeak,
         data.predictedPeak
       ),
-      positive:
-        data.predictedPeak >= data.currentPeak,
     },
 
     {
       metric: "OUT Requests",
       current: data.currentOut,
       predicted: data.predictedOut,
-      change: calculateChange(
+      ...calculateChange(
         data.currentOut,
         data.predictedOut
       ),
-      positive:
-        data.predictedOut >= data.currentOut,
     },
 
     {
       metric: "Denied Requests",
       current: data.currentDenied,
       predicted: data.predictedDenied,
-      change: calculateChange(
+      ...calculateChange(
         data.currentDenied,
         data.predictedDenied
       ),
-      positive:
-        data.predictedDenied <= data.currentDenied,
     },
 
     {
       metric: "Active Users",
       current: data.currentUsers,
       predicted: data.predictedUsers,
-      change: calculateChange(
+      ...calculateChange(
         data.currentUsers,
         data.predictedUsers
       ),
-      positive:
-        data.predictedUsers >= data.currentUsers,
     },
 
   ];
@@ -175,23 +175,33 @@ const PredictionSummary = ({
 
                 <td className="text-center">
 
-                  <span
-                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold ${
-                      row.positive
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
+                  {row.positive === null ? (
 
-                    {row.positive ? (
-                      <TrendingUp size={14} />
-                    ) : (
-                      <TrendingDown size={14} />
-                    )}
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-slate-100 text-slate-600">
+                      {row.text}
+                    </span>
 
-                    {row.change}
+                  ) : (
 
-                  </span>
+                    <span
+                      className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold ${
+                        row.positive
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+
+                      {row.positive ? (
+                        <TrendingUp size={14} />
+                      ) : (
+                        <TrendingDown size={14} />
+                      )}
+
+                      {row.text}
+
+                    </span>
+
+                  )}
 
                 </td>
 

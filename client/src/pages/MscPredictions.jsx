@@ -33,16 +33,16 @@ const MscPredictions = () => {
 
     if (
       !predictions.some(
-        (item) => item.module === selectedModule
+        (item) => item.feature === selectedModule
       )
     ) {
-      setSelectedModule(predictions[0].module);
+      setSelectedModule(predictions[0].feature);
     }
 
     setSelectedModules(
       predictions
         .slice(0, 4)
-        .map((item) => item.module)
+        .map((item) => item.feature)
     );
   }, [predictions]);
 
@@ -71,6 +71,7 @@ const MscPredictions = () => {
         setPredictions(
           predictionResponse.data.predictions
         );
+        console.log(predictionResponse.data.predictions);
 
         setMetrics(
           predictionResponse.data.metrics
@@ -79,6 +80,7 @@ const MscPredictions = () => {
         setTrendData(
           trendResponse.data.trend
         );
+        console.log("Trend Data:", trendResponse.data.trend);
       }
     } catch (err) {
       console.error(

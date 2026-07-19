@@ -24,15 +24,16 @@ const colors = [
 
 const TopModulesChart = ({ selectedPeriod }) => {
   const [data, setData] = useState([]);
+  const [viewType, setViewType] = useState("Feature");
 
   useEffect(() => {
     fetchModules();
-  }, [selectedPeriod]);
+  }, [selectedPeriod, viewType]);
 
   const fetchModules = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5001/api/msc/top-modules?period=${selectedPeriod}`
+        `http://localhost:5001/api/msc/top-modules?period=${selectedPeriod}&type=${viewType}`
       );
 
       setData(response.data);
@@ -49,11 +50,11 @@ const TopModulesChart = ({ selectedPeriod }) => {
         <div>
 
           <h2 className="text-base font-semibold text-slate-900 dark:text-white">
-            Top Modules by Peak Concurrent ({selectedPeriod})
+            Top {viewType === "Feature" ? "Features" : "Modules"} by Peak Concurrent ({selectedPeriod})
           </h2>
 
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Most frequently used software modules
+            Most frequently used software {viewType.toLowerCase()}s
           </p>
 
         </div>
@@ -65,11 +66,12 @@ const TopModulesChart = ({ selectedPeriod }) => {
           </span>
 
           <select
+            value={viewType}
+            onChange={(e) => setViewType(e.target.value)}
             className="border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg px-2 py-1 text-xs"
-            value="Peak Concurrent"
-            readOnly
           >
-            <option>Peak Concurrent</option>
+            <option value="Feature">Feature</option>
+            <option value="Module">Module</option>
           </select>
 
         </div>
@@ -112,7 +114,7 @@ const TopModulesChart = ({ selectedPeriod }) => {
           <YAxis
             type="category"
             dataKey="name"
-            width={95}
+            width={140}
             tick={{
               fontSize: 11,
               fill: "#64748B",

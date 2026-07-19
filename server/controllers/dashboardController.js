@@ -32,11 +32,37 @@ function calculateChange(current, previous) {
         currentQuery = `
           SELECT
             SUM(out_count + in_count + denied_count + queued_count + dequeued_count) AS totalRequests,
-            MAX(peak_concurrent) AS peakConcurrent,
+  
+            (
+              SELECT MAX(peak_concurrent)
+              FROM daily_msc_modules
+              WHERE module_date = (
+                SELECT MAX(module_date)
+                FROM daily_msc_modules
+              )
+            ) AS peakConcurrent,
+  
             SUM(denied_count) AS deniedRequests,
             SUM(unique_users) AS uniqueUsers,
-            COUNT(DISTINCT feature_name) AS uniqueFeatures,
+  
+            (
+              SELECT COUNT(*)
+              FROM daily_msc_modules
+              WHERE module_date = (
+                SELECT MAX(module_date)
+                FROM daily_msc_modules
+              )
+              AND (
+                out_count > 0 OR
+                in_count > 0 OR
+                denied_count > 0 OR
+                queued_count > 0 OR
+                dequeued_count > 0
+              )
+            ) AS uniqueModules,
+  
             SUM(out_count) AS outRequests
+  
           FROM daily_msc_features
           WHERE feature_date = (
             SELECT MAX(feature_date)
@@ -47,226 +73,469 @@ function calculateChange(current, previous) {
         previousQuery = `
           SELECT
             SUM(out_count + in_count + denied_count + queued_count + dequeued_count) AS totalRequests,
-            MAX(peak_concurrent) AS peakConcurrent,
+  
+            (
+              SELECT MAX(peak_concurrent)
+              FROM daily_msc_modules
+              WHERE module_date = (
+                SELECT MAX(module_date)
+                FROM daily_msc_modules
+                WHERE module_date < (
+                  SELECT MAX(module_date)
+                  FROM daily_msc_modules
+                )
+              )
+            ) AS peakConcurrent,
+  
             SUM(denied_count) AS deniedRequests,
             SUM(unique_users) AS uniqueUsers,
-            COUNT(DISTINCT feature_name) AS uniqueFeatures,
+  
+            (
+              SELECT COUNT(*)
+              FROM daily_msc_modules
+              WHERE module_date = (
+                SELECT MAX(module_date)
+                FROM daily_msc_modules
+                WHERE module_date < (
+                  SELECT MAX(module_date)
+                  FROM daily_msc_modules
+                )
+              )
+              AND (
+                out_count > 0 OR
+                in_count > 0 OR
+                denied_count > 0 OR
+                queued_count > 0 OR
+                dequeued_count > 0
+              )
+            ) AS uniqueModules,
+  
             SUM(out_count) AS outRequests
+  
           FROM daily_msc_features
           WHERE feature_date = (
             SELECT MAX(feature_date)
             FROM daily_msc_features
-            WHERE feature_date <
-            (
+            WHERE feature_date < (
               SELECT MAX(feature_date)
               FROM daily_msc_features
             )
           );
         `;
   
-      }
-  
-      else if (period === "Weekly") {
+      } else if (period === "Weekly") {
   
         currentQuery = `
           SELECT
             SUM(out_count + in_count + denied_count + queued_count + dequeued_count) AS totalRequests,
-            MAX(peak_concurrent) AS peakConcurrent,
+  
+            (
+              SELECT MAX(peak_concurrent)
+              FROM weekly_msc_modules
+              WHERE (year, week)=(
+                SELECT year, week
+                FROM (
+                  SELECT DISTINCT year, week
+                  FROM weekly_msc_modules
+                ) t
+                ORDER BY year DESC, week DESC
+                LIMIT 1
+              )
+            ) AS peakConcurrent,
+  
             SUM(denied_count) AS deniedRequests,
             SUM(unique_users) AS uniqueUsers,
-            COUNT(DISTINCT feature_name) AS uniqueFeatures,
+  
+            (
+              SELECT COUNT(*)
+              FROM weekly_msc_modules
+              WHERE (year, week)=(
+                SELECT year, week
+                FROM (
+                  SELECT DISTINCT year, week
+                  FROM weekly_msc_modules
+                ) t
+                ORDER BY year DESC, week DESC
+                LIMIT 1
+              )
+              AND (
+                out_count > 0 OR
+                in_count > 0 OR
+                denied_count > 0 OR
+                queued_count > 0 OR
+                dequeued_count > 0
+              )
+            ) AS uniqueModules,
+  
             SUM(out_count) AS outRequests
+  
           FROM weekly_msc_features
           WHERE (year, week)=(
-    SELECT year, week
-    FROM (
-        SELECT DISTINCT year, week
-        FROM weekly_msc_features
-    ) t
-    ORDER BY year DESC, week DESC
-    LIMIT 1
-)
-        `;
-  
-        previousQuery = `
-          SELECT
-            SUM(out_count + in_count + denied_count + queued_count + dequeued_count) AS totalRequests,
-            MAX(peak_concurrent) AS peakConcurrent,
-            SUM(denied_count) AS deniedRequests,
-            SUM(unique_users) AS uniqueUsers,
-            COUNT(DISTINCT feature_name) AS uniqueFeatures,
-            SUM(out_count) AS outRequests
-          FROM weekly_msc_features
-          WHERE (year, week)=(
-    SELECT year, week
-    FROM (
-        SELECT DISTINCT year, week
-        FROM weekly_msc_features
-    ) t
-    ORDER BY year DESC, week DESC
-    LIMIT 1 OFFSET 1
-)
-        `;
-  
-      }
-  
-      else if (period === "Monthly") {
-  
-        currentQuery = `
-          SELECT
-            SUM(out_count + in_count + denied_count + queued_count + dequeued_count) AS totalRequests,
-            MAX(peak_concurrent) AS peakConcurrent,
-            SUM(denied_count) AS deniedRequests,
-            SUM(unique_users) AS uniqueUsers,
-            COUNT(DISTINCT feature_name) AS uniqueFeatures,
-            SUM(out_count) AS outRequests
-          FROM monthly_msc_features
-          WHERE (year, month)=(
-            SELECT year, month
-FROM (
-    SELECT DISTINCT year, month
-    FROM monthly_msc_features
-) t
-            ORDER BY year DESC, month DESC
+            SELECT year, week
+            FROM (
+              SELECT DISTINCT year, week
+              FROM weekly_msc_features
+            ) t
+            ORDER BY year DESC, week DESC
             LIMIT 1
           );
         `;
-  
         previousQuery = `
-          SELECT
-            SUM(out_count + in_count + denied_count + queued_count + dequeued_count) AS totalRequests,
-            MAX(peak_concurrent) AS peakConcurrent,
-            SUM(denied_count) AS deniedRequests,
-            SUM(unique_users) AS uniqueUsers,
-            COUNT(DISTINCT feature_name) AS uniqueFeatures,
-            SUM(out_count) AS outRequests
-          FROM monthly_msc_features
-          WHERE (year, month)=(
-            SELECT year, month
-FROM (
-    SELECT DISTINCT year, month
-    FROM monthly_msc_features
-) t
-            ORDER BY year DESC, month DESC
-            LIMIT 1 OFFSET 1
-          );
-        `;
-  
-      }
-  
-      else {
-        return res.status(400).json({
-          message: "Invalid period",
-        });
-      }
-  
-      const [currentRows] = await pool.query(currentQuery);
-      const [previousRows] = await pool.query(previousQuery);
-  
-      const current = currentRows[0];
-      const previous = previousRows[0];
-  
-      res.json({
-        totalRequests: calculateChange(
-          current.totalRequests,
-          previous?.totalRequests
-        ),
-  
-        peakConcurrent: calculateChange(
-          current.peakConcurrent,
-          previous?.peakConcurrent
-        ),
-  
-        deniedRequests: calculateChange(
-          current.deniedRequests,
-          previous?.deniedRequests
-        ),
-  
-        uniqueUsers: calculateChange(
-          current.uniqueUsers,
-          previous?.uniqueUsers
-        ),
-  
-        uniqueFeatures: calculateChange(
-          current.uniqueFeatures,
-          previous?.uniqueFeatures
-        ),
-  
-        outRequests: calculateChange(
-          current.outRequests,
-          previous?.outRequests
-        ),
+        SELECT
+          SUM(out_count + in_count + denied_count + queued_count + dequeued_count) AS totalRequests,
+
+          (
+            SELECT MAX(peak_concurrent)
+            FROM weekly_msc_modules
+            WHERE (year, week)=(
+              SELECT year, week
+              FROM (
+                SELECT DISTINCT year, week
+                FROM weekly_msc_modules
+              ) t
+              ORDER BY year DESC, week DESC
+              LIMIT 1 OFFSET 1
+            )
+          ) AS peakConcurrent,
+
+          SUM(denied_count) AS deniedRequests,
+          SUM(unique_users) AS uniqueUsers,
+
+          (
+            SELECT COUNT(*)
+            FROM weekly_msc_modules
+            WHERE (year, week)=(
+              SELECT year, week
+              FROM (
+                SELECT DISTINCT year, week
+                FROM weekly_msc_modules
+              ) t
+              ORDER BY year DESC, week DESC
+              LIMIT 1 OFFSET 1
+            )
+            AND (
+              out_count > 0 OR
+              in_count > 0 OR
+              denied_count > 0 OR
+              queued_count > 0 OR
+              dequeued_count > 0
+            )
+          ) AS uniqueModules,
+
+          SUM(out_count) AS outRequests
+
+        FROM weekly_msc_features
+        WHERE (year, week)=(
+          SELECT year, week
+          FROM (
+            SELECT DISTINCT year, week
+            FROM weekly_msc_features
+          ) t
+          ORDER BY year DESC, week DESC
+          LIMIT 1 OFFSET 1
+        );
+      `;
+
+    } else if (period === "Monthly") {
+
+      currentQuery = `
+        SELECT
+          SUM(out_count + in_count + denied_count + queued_count + dequeued_count) AS totalRequests,
+
+          (
+            SELECT MAX(peak_concurrent)
+            FROM monthly_msc_modules
+            WHERE (year, month)=(
+              SELECT year, month
+              FROM (
+                SELECT DISTINCT year, month
+                FROM monthly_msc_modules
+              ) t
+              ORDER BY year DESC, month DESC
+              LIMIT 1
+            )
+          ) AS peakConcurrent,
+
+          SUM(denied_count) AS deniedRequests,
+          SUM(unique_users) AS uniqueUsers,
+
+          (
+            SELECT COUNT(*)
+            FROM monthly_msc_modules
+            WHERE (year, month)=(
+              SELECT year, month
+              FROM (
+                SELECT DISTINCT year, month
+                FROM monthly_msc_modules
+              ) t
+              ORDER BY year DESC, month DESC
+              LIMIT 1
+            )
+            AND (
+              out_count > 0 OR
+              in_count > 0 OR
+              denied_count > 0 OR
+              queued_count > 0 OR
+              dequeued_count > 0
+            )
+          ) AS uniqueModules,
+
+          SUM(out_count) AS outRequests
+
+        FROM monthly_msc_features
+        WHERE (year, month)=(
+          SELECT year, month
+          FROM (
+            SELECT DISTINCT year, month
+            FROM monthly_msc_features
+          ) t
+          ORDER BY year DESC, month DESC
+          LIMIT 1
+        );
+      `;
+
+      previousQuery = `
+        SELECT
+          SUM(out_count + in_count + denied_count + queued_count + dequeued_count) AS totalRequests,
+
+          (
+            SELECT MAX(peak_concurrent)
+            FROM monthly_msc_modules
+            WHERE (year, month)=(
+              SELECT year, month
+              FROM (
+                SELECT DISTINCT year, month
+                FROM monthly_msc_modules
+              ) t
+              ORDER BY year DESC, month DESC
+              LIMIT 1 OFFSET 1
+            )
+          ) AS peakConcurrent,
+
+          SUM(denied_count) AS deniedRequests,
+          SUM(unique_users) AS uniqueUsers,
+
+          (
+            SELECT COUNT(*)
+            FROM monthly_msc_modules
+            WHERE (year, month)=(
+              SELECT year, month
+              FROM (
+                SELECT DISTINCT year, month
+                FROM monthly_msc_modules
+              ) t
+              ORDER BY year DESC, month DESC
+              LIMIT 1 OFFSET 1
+            )
+            AND (
+              out_count > 0 OR
+              in_count > 0 OR
+              denied_count > 0 OR
+              queued_count > 0 OR
+              dequeued_count > 0
+            )
+          ) AS uniqueModules,
+
+          SUM(out_count) AS outRequests
+
+        FROM monthly_msc_features
+        WHERE (year, month)=(
+          SELECT year, month
+          FROM (
+            SELECT DISTINCT year, month
+            FROM monthly_msc_features
+          ) t
+          ORDER BY year DESC, month DESC
+          LIMIT 1 OFFSET 1
+        );
+      `;
+
+    } else {
+      return res.status(400).json({
+        message: "Invalid period",
       });
-  
-    } catch (err) {
-  
-      console.error(err);
-  
-      res.status(500).json({
-        message: "Server Error",
-      });
-  
     }
-  };
+    const [currentRows] = await pool.query(currentQuery);
+    const [previousRows] = await pool.query(previousQuery);
+
+    const current = currentRows[0] || {};
+    const previous = previousRows[0] || {};
+
+    res.json({
+      totalRequests: calculateChange(
+        current.totalRequests,
+        previous.totalRequests
+      ),
+
+      peakConcurrent: calculateChange(
+        current.peakConcurrent,
+        previous.peakConcurrent
+      ),
+
+      deniedRequests: calculateChange(
+        current.deniedRequests,
+        previous.deniedRequests
+      ),
+
+      uniqueUsers: calculateChange(
+        current.uniqueUsers,
+        previous.uniqueUsers
+      ),
+
+      uniqueModules: calculateChange(
+        current.uniqueModules,
+        previous.uniqueModules
+      ),
+
+      outRequests: calculateChange(
+        current.outRequests,
+        previous.outRequests
+      ),
+    });
+
+  } catch (err) {
+    console.error("Error fetching KPIs:", err);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch KPI data",
+      error: err.message,
+    });
+  }
+};
   export const getTrendData = async (req, res) => {
     try {
+  
       const period = req.query.period || "Daily";
+      const module = req.query.module || "All";
   
       let query = "";
   
       if (period === "Daily") {
-        query = `
-          SELECT
-            DATE_FORMAT(feature_date,'%d %b') AS day,
-            MAX(peak_concurrent) AS value
-          FROM daily_msc_features
-          GROUP BY feature_date
-          ORDER BY feature_date;
-        `;
+  
+        if (module === "All") {
+  
+          query = `
+            SELECT
+              DATE_FORMAT(module_date,'%d %b') AS day,
+              MAX(peak_concurrent) AS value
+            FROM daily_msc_modules
+            GROUP BY module_date
+            ORDER BY module_date;
+          `;
+  
+        } else {
+  
+          query = `
+            SELECT
+              DATE_FORMAT(module_date,'%d %b') AS day,
+              peak_concurrent AS value
+            FROM daily_msc_modules
+            WHERE module_name = ?
+            ORDER BY module_date;
+          `;
+  
+        }
+  
       }
   
       else if (period === "Weekly") {
-        query = `
-          SELECT
-            CONCAT('Week ', week) AS day,
-            MAX(peak_concurrent) AS value
-          FROM weekly_msc_features
-          GROUP BY year, week
-          ORDER BY year, week;
-        `;
+  
+        if (module === "All") {
+  
+          query = `
+            SELECT
+              CONCAT('Week ', week) AS day,
+              MAX(peak_concurrent) AS value
+            FROM weekly_msc_modules
+            GROUP BY year, week
+            ORDER BY year, week;
+          `;
+  
+        } else {
+  
+          query = `
+            SELECT
+              CONCAT('Week ', week) AS day,
+              peak_concurrent AS value
+            FROM weekly_msc_modules
+            WHERE module_name = ?
+            ORDER BY year, week;
+          `;
+  
+        }
+  
       }
   
       else if (period === "Monthly") {
-        query = `
-          SELECT
-  CASE month
-    WHEN 1 THEN 'January'
-    WHEN 2 THEN 'February'
-    WHEN 3 THEN 'March'
-    WHEN 4 THEN 'April'
-    WHEN 5 THEN 'May'
-    WHEN 6 THEN 'June'
-    WHEN 7 THEN 'July'
-    WHEN 8 THEN 'August'
-    WHEN 9 THEN 'September'
-    WHEN 10 THEN 'October'
-    WHEN 11 THEN 'November'
-    WHEN 12 THEN 'December'
-  END AS day,
-  MAX(peak_concurrent) AS value
-FROM monthly_msc_features
-GROUP BY year, month
-ORDER BY year, month;
-        `;
+  
+        if (module === "All") {
+  
+          query = `
+            SELECT
+              CASE month
+                WHEN 1 THEN 'January'
+                WHEN 2 THEN 'February'
+                WHEN 3 THEN 'March'
+                WHEN 4 THEN 'April'
+                WHEN 5 THEN 'May'
+                WHEN 6 THEN 'June'
+                WHEN 7 THEN 'July'
+                WHEN 8 THEN 'August'
+                WHEN 9 THEN 'September'
+                WHEN 10 THEN 'October'
+                WHEN 11 THEN 'November'
+                WHEN 12 THEN 'December'
+              END AS day,
+              MAX(peak_concurrent) AS value
+            FROM monthly_msc_modules
+            GROUP BY year, month
+            ORDER BY year, month;
+          `;
+  
+        } else {
+  
+          query = `
+            SELECT
+              CASE month
+                WHEN 1 THEN 'January'
+                WHEN 2 THEN 'February'
+                WHEN 3 THEN 'March'
+                WHEN 4 THEN 'April'
+                WHEN 5 THEN 'May'
+                WHEN 6 THEN 'June'
+                WHEN 7 THEN 'July'
+                WHEN 8 THEN 'August'
+                WHEN 9 THEN 'September'
+                WHEN 10 THEN 'October'
+                WHEN 11 THEN 'November'
+                WHEN 12 THEN 'December'
+              END AS day,
+              peak_concurrent AS value
+            FROM monthly_msc_modules
+            WHERE module_name = ?
+            ORDER BY year, month;
+          `;
+  
+        }
+  
       }
   
       else {
+  
         return res.status(400).json({
           message: "Invalid period",
         });
+  
       }
   
-      const [rows] = await pool.query(query);
+      let rows;
+  
+      if (module === "All") {
+        [rows] = await pool.query(query);
+      } else {
+        [rows] = await pool.query(query, [module]);
+      }
   
       res.json(rows);
   
@@ -282,78 +551,129 @@ ORDER BY year, month;
   };
   export const getTopModules = async (req, res) => {
     try {
+  
       const period = req.query.period || "Daily";
+      const type = req.query.type || "Feature";
   
-      let query = "";
+      let table = "";
+      let whereClause = "";
   
-      if (period === "Daily") {
+      if (type === "Feature") {
   
-        query = `
-          SELECT
-            feature_name AS name,
-            MAX(peak_concurrent) AS value
-          FROM daily_msc_features
-          WHERE feature_date = (
-            SELECT MAX(feature_date)
-            FROM daily_msc_features
-          )
-          GROUP BY feature_name
-          ORDER BY value DESC
-          LIMIT 8;
-        `;
+        if (period === "Daily") {
+          table = "daily_msc_features";
+          whereClause = `
+            feature_date = (
+              SELECT MAX(feature_date)
+              FROM daily_msc_features
+            )
+          `;
+        }
   
-      }
+        else if (period === "Weekly") {
+          table = "weekly_msc_features";
+          whereClause = `
+            (year, week) = (
+              SELECT year, week
+              FROM (
+                SELECT DISTINCT year, week
+                FROM weekly_msc_features
+              ) t
+              ORDER BY year DESC, week DESC
+              LIMIT 1
+            )
+          `;
+        }
   
-      else if (period === "Weekly") {
-  
-        query = `
-          SELECT
-            feature_name AS name,
-            MAX(peak_concurrent) AS value
-          FROM weekly_msc_features
-          WHERE (year, week) = (
-            SELECT year, week
-            FROM (
-              SELECT DISTINCT year, week
-              FROM weekly_msc_features
-            ) weeks
-            ORDER BY year DESC, week DESC
-            LIMIT 1
-          )
-          GROUP BY feature_name
-          ORDER BY value DESC
-          LIMIT 8;
-        `;
-  
-      }
-  
-      else if (period === "Monthly") {
-  
-        query = `
-          SELECT
-            feature_name AS name,
-            MAX(peak_concurrent) AS value
-          FROM monthly_msc_features
-          WHERE (year, month) = (
-            SELECT year, month
-            FROM (
-              SELECT DISTINCT year, month
-              FROM monthly_msc_features
-            ) months
-            ORDER BY year DESC, month DESC
-            LIMIT 1
-          )
-          GROUP BY feature_name
-          ORDER BY value DESC
-          LIMIT 8;
-        `;
+        else if (period === "Monthly") {
+          table = "monthly_msc_features";
+          whereClause = `
+            (year, month) = (
+              SELECT year, month
+              FROM (
+                SELECT DISTINCT year, month
+                FROM monthly_msc_features
+              ) t
+              ORDER BY year DESC, month DESC
+              LIMIT 1
+            )
+          `;
+        }
   
       }
   
       else {
-        return res.status(400).json({
-          message: "Invalid period",
-        });
+  
+        if (period === "Daily") {
+          table = "daily_msc_modules";
+          whereClause = `
+            module_date = (
+              SELECT MAX(module_date)
+              FROM daily_msc_modules
+            )
+          `;
+        }
+  
+        else if (period === "Weekly") {
+          table = "weekly_msc_modules";
+          whereClause = `
+            (year, week) = (
+              SELECT year, week
+              FROM (
+                SELECT DISTINCT year, week
+                FROM weekly_msc_modules
+              ) t
+              ORDER BY year DESC, week DESC
+              LIMIT 1
+            )
+          `;
+        }
+  
+        else if (period === "Monthly") {
+          table = "monthly_msc_modules";
+          whereClause = `
+            (year, month) = (
+              SELECT year, month
+              FROM (
+                SELECT DISTINCT year, month
+                FROM monthly_msc_modules
+              ) t
+              ORDER BY year DESC, month DESC
+              LIMIT 1
+            )
+          `;
+        }
+  
+      }
+  
+      let query = "";
+  
+      if (type === "Feature") {
+  
+        query = `
+          SELECT
+            fm.feature_display_name AS name,
+            t.peak_concurrent AS value
+          FROM ${table} t
+          JOIN feature_mapping fm
+            ON t.feature_name = fm.feature_name
+          WHERE ${whereClause}
+          ORDER BY t.peak_concurrent DESC
+          LIMIT 8;
+        `;
+  
+      } else {
+  
+        query = `
+          SELECT
+            module_name AS name,
+            peak_concurrent AS value
+          FROM ${table}
+          WHERE ${whereClause}
+          ORDER BY peak_concurrent DESC
+          LIMIT 8;
+        `;
+  
       }
   
       const [rows] = await pool.query(query);
@@ -473,20 +793,23 @@ ORDER BY year, month;
   
         query = `
           SELECT
-            feature_name AS feature,
-            out_count AS outCount,
-            in_count AS inCount,
-            denied_count AS denied,
-            queued_count AS queued,
-            dequeued_count AS dequeued,
-            peak_concurrent AS peak,
-            unique_users AS users
-          FROM daily_msc_features
-          WHERE feature_date = (
+            fm.feature_display_name AS feature,
+            fm.module_name AS module,
+            d.out_count AS outCount,
+            d.in_count AS inCount,
+            d.denied_count AS denied,
+            d.queued_count AS queued,
+            d.dequeued_count AS dequeued,
+            d.peak_concurrent AS peak,
+            d.unique_users AS users
+          FROM daily_msc_features d
+          JOIN feature_mapping fm
+            ON d.feature_name = fm.feature_name
+          WHERE d.feature_date = (
             SELECT MAX(feature_date)
             FROM daily_msc_features
           )
-          ORDER BY out_count DESC;
+          ORDER BY d.out_count DESC;
         `;
   
       }
@@ -495,16 +818,19 @@ ORDER BY year, month;
   
         query = `
           SELECT
-            feature_name AS feature,
-            out_count AS outCount,
-            in_count AS inCount,
-            denied_count AS denied,
-            queued_count AS queued,
-            dequeued_count AS dequeued,
-            peak_concurrent AS peak,
-            unique_users AS users
-          FROM weekly_msc_features
-          WHERE (year, week) = (
+            fm.feature_display_name AS feature,
+            fm.module_name AS module,
+            w.out_count AS outCount,
+            w.in_count AS inCount,
+            w.denied_count AS denied,
+            w.queued_count AS queued,
+            w.dequeued_count AS dequeued,
+            w.peak_concurrent AS peak,
+            w.unique_users AS users
+          FROM weekly_msc_features w
+          JOIN feature_mapping fm
+            ON w.feature_name = fm.feature_name
+          WHERE (w.year, w.week) = (
             SELECT year, week
             FROM (
               SELECT DISTINCT year, week
@@ -513,7 +839,7 @@ ORDER BY year, month;
             ORDER BY year DESC, week DESC
             LIMIT 1
           )
-          ORDER BY out_count DESC;
+          ORDER BY w.out_count DESC;
         `;
   
       }
@@ -522,16 +848,19 @@ ORDER BY year, month;
   
         query = `
           SELECT
-            feature_name AS feature,
-            out_count AS outCount,
-            in_count AS inCount,
-            denied_count AS denied,
-            queued_count AS queued,
-            dequeued_count AS dequeued,
-            peak_concurrent AS peak,
-            unique_users AS users
-          FROM monthly_msc_features
-          WHERE (year, month) = (
+            fm.feature_display_name AS feature,
+            fm.module_name AS module,
+            m.out_count AS outCount,
+            m.in_count AS inCount,
+            m.denied_count AS denied,
+            m.queued_count AS queued,
+            m.dequeued_count AS dequeued,
+            m.peak_concurrent AS peak,
+            m.unique_users AS users
+          FROM monthly_msc_features m
+          JOIN feature_mapping fm
+            ON m.feature_name = fm.feature_name
+          WHERE (m.year, m.month) = (
             SELECT year, month
             FROM (
               SELECT DISTINCT year, month
@@ -540,7 +869,7 @@ ORDER BY year, month;
             ORDER BY year DESC, month DESC
             LIMIT 1
           )
-          ORDER BY out_count DESC;
+          ORDER BY m.out_count DESC;
         `;
   
       }
@@ -565,5 +894,19 @@ ORDER BY year, month;
         message: "Server Error",
       });
   
+    }
+  };
+  export const getModules = async (req, res) => {
+    try {
+      const [rows] = await pool.query(`
+        SELECT DISTINCT module_name
+        FROM feature_mapping
+        ORDER BY module_name;
+      `);
+  
+      res.json(rows);
+    } catch (err) {
+      console.error("Error fetching modules:", err);
+      res.status(500).json({ error: "Internal Server Error" });
     }
   };

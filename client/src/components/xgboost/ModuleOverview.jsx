@@ -6,11 +6,9 @@ const ModuleOverview = ({
   setSelectedModule,
 }) => {
 
-  const modules = predictions.map((item) => item.module);
-
   const data =
     predictions.find(
-      (item) => item.module === selectedModule
+      (item) => item.feature === selectedModule
     ) || {};
 
   const getStatus = () => {
@@ -57,12 +55,12 @@ const ModuleOverview = ({
         onChange={(e) => setSelectedModule(e.target.value)}
         className="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
-        {modules.map((module) => (
+        {predictions.map((item) => (
           <option
-            key={module}
-            value={module}
+            key={item.feature}
+            value={item.feature}
           >
-            {module}
+            {item.displayName}
           </option>
         ))}
       </select>
@@ -113,15 +111,18 @@ const ModuleOverview = ({
           </p>
 
           <h2
-            className={`text-xl font-bold mt-1 ${
-              data.change >= 0
-                ? "text-green-600"
-                : "text-red-600"
-            }`}
-          >
-            {data.change > 0 ? "+" : ""}
-            {data.change ?? "-"}%
-          </h2>
+  className={`text-xl font-bold mt-1 ${
+    data.change == null
+      ? "text-slate-500"
+      : data.change >= 0
+      ? "text-green-600"
+      : "text-red-600"
+  }`}
+>
+  {data.change == null
+    ? "N/A"
+    : `${data.change > 0 ? "+" : ""}${data.change}%`}
+</h2>
         </div>
 
         <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3">

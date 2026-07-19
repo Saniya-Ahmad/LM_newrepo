@@ -1,10 +1,10 @@
 {
     "period": "Daily",
-    "mae": 9.18,
-    "rmse": 12.8,
-    "r2": 0.8269,
-    "trainingSamples": 272,
-    "testingSamples": 68,
-    "trainingRows": 340,
-    "trainedOn": "2026-07-09 15:05:00"
+    "mae": 1.46,
+    "rmse": 1.76,
+    "r2": -0.0174,
+    "trainingSamples": 464,
+    "testingSamples": 116,
+    "trainingRows": 580,
+    "trainedOn": "2026-07-19 15:43:30"
 }

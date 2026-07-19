@@ -83,14 +83,20 @@ engine = create_engine(
 
 
 # ----------------------------------
-# Get Modules
+# Get Features + License Information
 # ----------------------------------
 
 modules = pd.read_sql(
     f"""
-    SELECT DISTINCT feature_name
-    FROM {TABLE}
-    ORDER BY feature_name;
+    SELECT DISTINCT
+        t.feature_name,
+        fm.feature_display_name,
+        fm.module_name,
+        fm.module_quantity
+    FROM {TABLE} t
+    INNER JOIN feature_mapping fm
+        ON UPPER(t.feature_name) = UPPER(fm.feature_name)
+    ORDER BY t.feature_name;
     """,
     engine,
 )
@@ -99,17 +105,23 @@ results = []
 
 
 # ----------------------------------
-# Predict Each Module
+# Predict Each Feature
 # ----------------------------------
 
-for module_name in modules["feature_name"]:
+for _, row in modules.iterrows():
+
+    feature_name = row["feature_name"]
+    feature_display = row["feature_display_name"]
+    module_name = row["module_name"]
+    current_licenses = int(row["module_quantity"])
+
 
     if period == "Daily":
 
         query = f"""
         SELECT *
         FROM {TABLE}
-        WHERE feature_name='{module_name}'
+        WHERE feature_name='{feature_name}'
         ORDER BY feature_date DESC
         LIMIT 2;
         """
@@ -119,7 +131,7 @@ for module_name in modules["feature_name"]:
         query = f"""
         SELECT *
         FROM {TABLE}
-        WHERE feature_name='{module_name}'
+        WHERE feature_name='{feature_name}'
         ORDER BY year DESC, week DESC
         LIMIT 2;
         """
@@ -129,7 +141,7 @@ for module_name in modules["feature_name"]:
         query = f"""
         SELECT *
         FROM {TABLE}
-        WHERE feature_name='{module_name}'
+        WHERE feature_name='{feature_name}'
         ORDER BY year DESC, month DESC
         LIMIT 2;
         """
@@ -142,7 +154,8 @@ for module_name in modules["feature_name"]:
     current = df.iloc[0]
     previous = df.iloc[1]
 
-    module_encoded = encoder.transform([module_name])[0]
+    module_encoded = encoder.transform([feature_name])[0]
+
 
     if period == "Daily":
 
@@ -193,7 +206,6 @@ for module_name in modules["feature_name"]:
         }])
 
     prediction = float(model.predict(input_df)[0])
-
     # ----------------------------------
     # Derived Metrics
     # ----------------------------------
@@ -204,45 +216,91 @@ for module_name in modules["feature_name"]:
         else 1
     )
 
-    predicted_out = round(
-        current["out_count"] * ratio
-    )
+    predicted_out = round(current["out_count"] * ratio)
 
-    predicted_denied = round(
-        current["denied_count"] * ratio
-    )
+    predicted_denied = round(current["denied_count"] * ratio)
 
-    predicted_users = round(
-        current["unique_users"] * ratio
-    )
+    predicted_users = round(current["unique_users"] * ratio)
 
     difference = round(
         prediction - current["peak_concurrent"]
     )
 
-    change = (
-        (prediction - current["peak_concurrent"])
-        / current["peak_concurrent"]
-    ) * 100
+    if current["peak_concurrent"] == 0:
+        change = None
+    else:
+        change = round(
+            (
+                (prediction - current["peak_concurrent"])
+                / current["peak_concurrent"]
+            ) * 100,
+            1,
+        )
 
-    if change > 10:
-        recommendation = "Increase Licenses"
+
+    # ----------------------------------
+    # License Recommendation
+    # ----------------------------------
+
+    prediction = round(prediction)
+
+    licenses_to_add = 0
+    licenses_to_remove = 0
+
+    if prediction > current_licenses:
+
+        licenses_to_add = prediction - current_licenses
+
+        recommendation = (
+            f"Add {licenses_to_add} license(s)"
+        )
+
         priority = "High"
 
-    elif change < -10:
-        recommendation = "Reduce Licenses"
+    elif prediction < current_licenses and current["denied_count"] == 0:
+
+        licenses_to_remove = current_licenses - prediction
+
+        recommendation = (
+            f"Remove {licenses_to_remove} unused license(s)"
+        )
+
         priority = "Low"
 
-    else:
-        recommendation = "Maintain Current Licenses"
+    elif current["denied_count"] > 0:
+
+        recommendation = (
+            "Monitor usage due to denied requests"
+        )
+
         priority = "Medium"
+
+    else:
+
+        recommendation = (
+            "Current license allocation is sufficient"
+        )
+
+        priority = "Medium"
+
+
+    # ----------------------------------
+    # Save Result
+    # ----------------------------------
 
     results.append({
 
+        "feature": feature_name,
+        "displayName": feature_display,
         "module": module_name,
 
+        "currentLicenses": current_licenses,
+
+        "licensesToAdd": licenses_to_add,
+        "licensesToRemove": licenses_to_remove,
+
         "currentPeak": int(current["peak_concurrent"]),
-        "predictedPeak": round(prediction),
+        "predictedPeak": prediction,
 
         "currentOut": int(current["out_count"]),
         "predictedOut": predicted_out,
@@ -254,7 +312,7 @@ for module_name in modules["feature_name"]:
         "predictedUsers": predicted_users,
 
         "difference": difference,
-        "change": round(change, 2),
+        "change": change,
 
         "recommendation": recommendation,
         "priority": priority,
@@ -267,7 +325,10 @@ for module_name in modules["feature_name"]:
 # ----------------------------------
 
 results.sort(
-    key=lambda x: x["predictedPeak"],
+    key=lambda x: (
+        x["priority"] == "High",
+        x["predictedPeak"]
+    ),
     reverse=True,
 )
 
@@ -277,7 +338,11 @@ results.sort(
 # ----------------------------------
 
 print(json.dumps({
+
     "period": period,
+
     "metrics": metrics,
+
     "predictions": results,
+
 }))
