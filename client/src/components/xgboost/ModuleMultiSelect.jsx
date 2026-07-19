@@ -29,7 +29,7 @@ const ModuleMultiSelect = ({
         className="flex items-center gap-3 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 bg-white dark:bg-slate-900 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition"
       >
         <span className="font-medium text-slate-900 dark:text-white">
-          Features
+          Modules
         </span>
 
         <span className="text-slate-500 dark:text-slate-400 text-sm">
