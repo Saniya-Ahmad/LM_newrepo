@@ -5,6 +5,40 @@ import { pool } from "../config/mysql.js";
 
 const router = express.Router();
 
+// Helper function to log authentication events
+const logAuth = async ({
+  username = null,
+  email = null,
+  role = null,
+  action,
+  status,
+  message,
+  ip,
+  userAgent,
+}) => {
+  try {
+    await pool.query(
+      `
+      INSERT INTO auth_logs
+      (username,email,role,action,status,message,ip_address,user_agent)
+      VALUES (?,?,?,?,?,?,?,?)
+      `,
+      [
+        username,
+        email,
+        role,
+        action,
+        status,
+        message,
+        ip,
+        userAgent,
+      ]
+    );
+  } catch (err) {
+    console.error("Failed to write auth log:", err);
+  }
+};
+
 router.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -15,13 +49,23 @@ router.post("/register", async (req, res) => {
     );
 
     if (existing.length > 0) {
+      await logAuth({
+        username: name,
+        email,
+        role: "USER",
+        action: "REGISTER",
+        status: "FAILED",
+        message: "User already exists",
+        ip: req.ip,
+        userAgent: req.headers["user-agent"],
+      });
+
       return res.status(400).json({
         message: "User already exists",
       });
     }
 
-    const hashedPassword =
-      await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const [result] = await pool.query(
       `
@@ -36,6 +80,17 @@ router.post("/register", async (req, res) => {
         "user",
       ]
     );
+
+    await logAuth({
+      username: name,
+      email,
+      role: "USER",
+      action: "REGISTER",
+      status: "SUCCESS",
+      message: "Account created",
+      ip: req.ip,
+      userAgent: req.headers["user-agent"],
+    });
 
     res.json({
       message: "User created",
@@ -60,18 +115,38 @@ router.post("/login", async (req, res) => {
     const user = rows[0];
 
     if (!user) {
+      await logAuth({
+        email,
+        role: null,
+        action: "LOGIN",
+        status: "FAILED",
+        message: "User not found",
+        ip: req.ip,
+        userAgent: req.headers["user-agent"],
+      });
+
       return res.status(400).json({
         message: "User not found",
       });
     }
 
-    const isMatch =
-      await bcrypt.compare(
-        password,
-        user.password
-      );
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
 
     if (!isMatch) {
+      await logAuth({
+        username: user.name,
+        email: user.email,
+        role: user.role.toUpperCase(),
+        action: "LOGIN",
+        status: "FAILED",
+        message: "Invalid password",
+        ip: req.ip,
+        userAgent: req.headers["user-agent"],
+      });
+
       return res.status(400).json({
         message: "Invalid credentials",
       });
@@ -88,6 +163,17 @@ router.post("/login", async (req, res) => {
         expiresIn: "1d",
       }
     );
+
+    await logAuth({
+      username: user.name,
+      email: user.email,
+      role: user.role.toUpperCase(),
+      action: "LOGIN",
+      status: "SUCCESS",
+      message: "Login successful",
+      ip: req.ip,
+      userAgent: req.headers["user-agent"],
+    });
 
     res.json({
       token,
