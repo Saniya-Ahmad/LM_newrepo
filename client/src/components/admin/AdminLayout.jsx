@@ -96,10 +96,12 @@ const AdminLayout = () => {
                 Software License Management
               </p>
               <p
-                className={`text-sm ${isDark ? "text-sky-100" : "text-slate-500"}`}
-              >
-                Admin Workspace
-              </p>
+  className={`text-sm ${
+    isDark ? "text-sky-100" : "text-white-900"
+  }`}
+>
+  Admin Workspace
+</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
