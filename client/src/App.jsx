@@ -13,6 +13,8 @@ import ModuleUsage from "./pages/ModuleUsage";
 import ModuleVisualization from "./pages/ModuleVisualization";
 import MscDashboardPage from "./pages/MscDashboardPage";
 import MscPredictions from "./pages/MscPredictions";
+import ComsolDashboardPage from "./pages/ComsolDashboardPage";
+import ComsolPredictions from "./pages/ComsolPredictions";
 
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import AuthHeader from "./components/AuthHeader";
@@ -25,11 +27,19 @@ function Header() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="h-12 w-12 rounded-full overflow-hidden bg-white/10 ring-1 ring-white/20 flex items-center justify-center">
-            <img src="/image.png" alt="Logo" className="h-full w-full object-contain" />
+            <img
+              src="/image.png"
+              alt="Logo"
+              className="h-full w-full object-contain"
+            />
           </div>
           <div>
-            <p className="text-base font-semibold tracking-wide">Software License Management</p>
-            <p className="text-sm text-slate-200 dark:text-slate-400">License Analytics Dashboard</p>
+            <p className="text-base font-semibold tracking-wide">
+              Software License Management
+            </p>
+            <p className="text-sm text-slate-200 dark:text-slate-400">
+              License Analytics Dashboard
+            </p>
           </div>
         </div>
 
@@ -40,7 +50,10 @@ function Header() {
             </span>
           )}
           {user && (
-            <button onClick={logout} className="rounded-full bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 transition">
+            <button
+              onClick={logout}
+              className="rounded-full bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 transition"
+            >
               Logout
             </button>
           )}
@@ -64,7 +77,10 @@ function AdminPrivate({ children }) {
 
 function PublicRoute({ children }) {
   const { user } = useAuth();
-  if (user) return <Navigate to={user.role === "admin" ? "/admin" : "/dashboard"} replace />;
+  if (user)
+    return (
+      <Navigate to={user.role === "admin" ? "/admin" : "/dashboard"} replace />
+    );
   return children;
 }
 
@@ -72,10 +88,32 @@ function Footer() {
   return (
     <footer className="border-t border-slate-800 bg-slate-950 text-slate-400 py-6">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center text-sm">
-        <p>© {new Date().getFullYear()} Software License Analytics Management System.</p>
+        <p>
+          © {new Date().getFullYear()} Software License Analytics Management
+          System.
+        </p>
         <p>Software license dummy data dashboard prototype.</p>
       </div>
     </footer>
+  );
+}
+function UserDashboardLayout({ children }) {
+  const { theme } = useAuth();
+
+  return (
+    <div
+      className={`min-h-screen flex flex-col transition-colors duration-300 ${
+        theme === "dark"
+          ? "bg-slate-950 text-slate-100"
+          : "bg-slate-100 text-slate-900"
+      }`}
+    >
+      <AuthHeader />
+
+      {children}
+
+      <Footer />
+    </div>
   );
 }
 
@@ -96,7 +134,10 @@ export default function App() {
             <Route path="labwise-licenses" element={<LabWiseLicenses />} />
             <Route path="license-details" element={<LicenseDetails />} />
             <Route path="module-usage" element={<ModuleUsage />} />
-            <Route path="module-visualization" element={<ModuleVisualization />} />
+            <Route
+              path="module-visualization"
+              element={<ModuleVisualization />}
+            />
             <Route path="matlab">
               <Route index element={<Matlab />} />
               <Route path="predictions" element={<MatlabPredictions />} />
@@ -104,6 +145,10 @@ export default function App() {
             <Route path="msc">
               <Route index element={<MscDashboardPage />} />
               <Route path="predictions" element={<MscPredictions />} />
+            </Route>
+            <Route path="comsol">
+              <Route index element={<ComsolDashboardPage />} />
+              <Route path="predictions" element={<ComsolPredictions />} />
             </Route>
           </Route>
 
@@ -142,22 +187,17 @@ export default function App() {
           />
 
           <Route
-            path="/dashboard"
-            element={
-              <div className="min-h-screen bg-slate-950 text-slate-100 transition-colors duration-300 flex flex-col">
-                <Header />
-
-                <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10 flex-1">
-                  <Private>
-                    <DashboardForm />
-                  </Private>
-                </main>
-
-                <Footer />
-              </div>
-            }
-          />
-
+  path="/dashboard"
+  element={
+    <Private>
+      <UserDashboardLayout>
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10 flex-1 w-full">
+          <DashboardForm />
+        </main>
+      </UserDashboardLayout>
+    </Private>
+  }
+/>
           <Route
             path="/logs"
             element={

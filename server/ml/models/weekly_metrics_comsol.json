@@ -1,0 +1,10 @@
+{
+    "period": "Weekly",
+    "mae": 0.32,
+    "rmse": 0.49,
+    "r2": 0.9634,
+    "trainingSamples": 24,
+    "testingSamples": 6,
+    "trainingRows": 30,
+    "trainedOn": "2026-07-14 21:46:03"
+}

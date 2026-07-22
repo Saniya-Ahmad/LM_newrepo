@@ -6,6 +6,8 @@ import authRoutes from "./routes/auth.js";
 import licenseRoutes from "./routes/license.js";
 import matlabRoutes from "./routes/matlab.js";
 import dashboardRoutes from "./routes/dashboard.js";
+import comsolDashboardRoutes from "./routes/comsolDashboard.js";
+import comsolPredictionRoutes from "./routes/comsolPredictionRoutes.js";
 import matlabPredictionRoutes from "./routes/matlabPredictionRoute.js";
 dotenv.config();
 
@@ -19,15 +21,15 @@ app.use("/api/license", licenseRoutes);
 app.use("/api/matlab", matlabRoutes);
 app.use("/api/msc", dashboardRoutes);
 app.use("/api/msc/predictions", xgboostRoutes);
-app.use("/api/matlab-prediction", matlabPredictionRoutes);app.get("/", (req, res) => {
+app.use("/api/comsol-dashboard", comsolDashboardRoutes);
+app.use("/api/comsol/predictions", comsolPredictionRoutes);
+app.use("/api/matlab-prediction", matlabPredictionRoutes);
+app.get("/", (req, res) => {
   res.send("API running");
 });
 
-const PORT =
-  process.env.PORT || 5001;
+const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, () => {
-  console.log(
-    `Server running on ${PORT}`
-  );
+  console.log(`Server running on ${PORT}`);
 });

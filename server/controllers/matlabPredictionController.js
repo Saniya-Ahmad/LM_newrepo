@@ -1,123 +1,76 @@
-import {
-  fetchPredictionTrend,
-  fetchFuturePredictions,
-  fetchPredictionSummary,
-  fetchRecommendations,
-  fetchModelInformation,
-} from "../services/matlabPredictionService.js";
+import { exec } from "child_process";
+import path from "path";
 
-/* ==========================================================
-   Prediction Trend
-========================================================== */
+const PYTHON = process.platform === "win32" ? "python" : "python3";
 
-export async function getPredictionTrend(req, res) {
-  try {
-    const filter = {
-      year: Number(req.query.year) || 2026,
-      month: Number(req.query.month) || 7,
-      feature: req.query.feature || "MATLAB",
-    };
+export const getPredictions = (req, res) => {
 
-    const data = await fetchPredictionTrend(filter);
+  const script = path.join(process.cwd(), "python", "ml", "predict.py");
 
-    res.status(200).json(data);
-  } catch (err) {
-    console.error("Prediction Trend Error:", err);
+  exec(
+    `${PYTHON} "${script}"`,
+    (error, stdout, stderr) => {
 
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch prediction trend.",
-    });
-  }
-}
+      console.log("STDOUT:");
+      console.log(stdout);
 
-/* ==========================================================
-   Future Predictions
-========================================================== */
+      console.log("STDERR:");
+      console.log(stderr);
 
-export async function getFuturePredictions(req, res) {
-  try {
-    const filter = {
-      year: Number(req.query.year) || 2026,
-      month: Number(req.query.month) || 7,
-    };
+      console.log("ERROR:");
+      console.log(error);
 
-    const data = await fetchFuturePredictions(filter);
+      if (error) {
+        return res.status(500).json({
+          message: error.message,
+          stderr,
+        });
+      }
 
-    res.status(200).json(data);
-  } catch (err) {
-    console.error("Future Prediction Error:", err);
+      try {
+        res.json(JSON.parse(stdout));
+      } catch (err) {
+        res.status(500).json({
+          message: "Invalid JSON",
+          stdout,
+        });
+      }
+    }
+  );
+};
 
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch future predictions.",
-    });
-  }
-}
+export const getTrend = (req, res) => {
 
-/* ==========================================================
-   Prediction Summary
-========================================================== */
+  const script = path.join(process.cwd(), "python", "ml", "predict_trend.py");
 
-export async function getPredictionSummary(req, res) {
-  try {
-    const filter = {
-      year: Number(req.query.year) || 2026,
-      month: Number(req.query.month) || 7,
-    };
+  exec(
+    `${PYTHON} "${script}"`,
+    (error, stdout, stderr) => {
 
-    const data = await fetchPredictionSummary(filter);
+      console.log("STDOUT:");
+      console.log(stdout);
 
-    res.status(200).json(data);
-  } catch (err) {
-    console.error("Prediction Summary Error:", err);
+      console.log("STDERR:");
+      console.log(stderr);
 
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch prediction summary.",
-    });
-  }
-}
+      console.log("ERROR:");
+      console.log(error);
 
-/* ==========================================================
-   Recommendations
-========================================================== */
+      if (error) {
+        return res.status(500).json({
+          message: error.message,
+          stderr,
+        });
+      }
 
-export async function getRecommendations(req, res) {
-  try {
-    const filter = {
-      year: Number(req.query.year) || 2026,
-      month: Number(req.query.month) || 7,
-    };
-
-    const data = await fetchRecommendations(filter);
-
-    res.status(200).json(data);
-  } catch (err) {
-    console.error("Recommendation Error:", err);
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch recommendations.",
-    });
-  }
-}
-
-/* ==========================================================
-   Model Information
-========================================================== */
-
-export async function getModelInformation(req, res) {
-  try {
-    const data = await fetchModelInformation();
-
-    res.status(200).json(data);
-  } catch (err) {
-    console.error("Model Information Error:", err);
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch model information.",
-    });
-  }
-}
+      try {
+        res.json(JSON.parse(stdout));
+      } catch (err) {
+        res.status(500).json({
+          message: "Invalid JSON",
+          stdout,
+        });
+      }
+    }
+  );
+};

@@ -3,7 +3,7 @@ import express from "express";
 import {
   getPredictions,
   getTrend,
-} from "../controllers/matlabPredictionController.js";
+} from "../controllers/comsolPredictionController.js";
 
 const router = express.Router();
 

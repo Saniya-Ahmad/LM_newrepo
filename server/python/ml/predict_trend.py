@@ -18,22 +18,9 @@ DATASET_PATH = BASE_DIR / "dataset" / "training.csv"
 # ==========================================================
 
 model = joblib.load(MODEL_PATH)
-
 df = pd.read_csv(DATASET_PATH)
 
-# ==========================================================
-# MATLAB only
-# ==========================================================
-
-df = df[df["feature"] == "MATLAB"].copy()
-
-df = df.sort_values("event_date")
-
-last = df.iloc[-1].copy()
-
-# ==========================================================
-# Features
-# ==========================================================
+df["event_date"] = pd.to_datetime(df["event_date"])
 
 FEATURE_COLUMNS = [
     "checkout_count",
@@ -50,45 +37,55 @@ FEATURE_COLUMNS = [
     "rolling_mean_7",
 ]
 
-# ==========================================================
-# Predict next 7 days
-# ==========================================================
-
 trend = []
 
-current_date = pd.to_datetime(last["event_date"])
+# ==========================================================
+# Predict next 7 days for every feature
+# ==========================================================
 
-for i in range(7):
+for feature in sorted(df["feature"].unique()):
 
-    current_date += timedelta(days=1)
+    feature_df = (
+        df[df["feature"] == feature]
+        .sort_values("event_date")
+        .copy()
+    )
 
-    last["day"] = current_date.day
-    last["month"] = current_date.month
-    last["day_of_week"] = current_date.dayofweek
-    last["week"] = int(current_date.isocalendar().week)
+    if feature_df.empty:
+        continue
 
-    X = pd.DataFrame([last[FEATURE_COLUMNS]])
+    last = feature_df.iloc[-1].copy()
 
-    prediction = float(model.predict(X)[0])
+    current_date = pd.to_datetime(last["event_date"])
 
-    trend.append({
+    for _ in range(7):
 
-        "date": current_date.strftime("%d %b"),
+        current_date += timedelta(days=1)
 
-        "predicted_peak": round(prediction, 2)
+        last["day"] = current_date.day
+        last["month"] = current_date.month
+        last["day_of_week"] = current_date.dayofweek
+        last["week"] = int(current_date.isocalendar().week)
 
-    })
+        X = pd.DataFrame([last[FEATURE_COLUMNS]])
 
-    # Update lag values
+        prediction = float(model.predict(X)[0])
 
-    last["lag7"] = last["lag1"]
-    last["lag1"] = prediction
-    last["rolling_mean_7"] = (
-        last["rolling_mean_7"] * 6 + prediction
-    ) / 7
+        trend.append({
+            "date": current_date.strftime("%d %b"),
+            "feature": feature,
+            "predicted_peak": round(prediction, 2),
+        })
 
-    last["checkout_count"] = prediction
-    last["checkin_count"] = prediction
-    last["active_sessions"] = prediction
+        # Update lag values recursively
+        last["lag7"] = last["lag1"]
+        last["lag1"] = prediction
+        last["rolling_mean_7"] = (
+            last["rolling_mean_7"] * 6 + prediction
+        ) / 7
+
+        last["checkout_count"] = prediction
+        last["checkin_count"] = prediction
+        last["active_sessions"] = prediction
 
 print(json.dumps(trend))
