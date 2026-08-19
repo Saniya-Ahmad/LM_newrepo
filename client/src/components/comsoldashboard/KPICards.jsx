@@ -22,9 +22,10 @@ const KPICards = ({ selectedPeriod }) => {
   const fetchKPIs = async () => {
     try {
       const { data } = await axios.get(
-        `http://localhost:5001/api/comsol-dashboard/kpis?period=${selectedPeriod}`,
+        `http://localhost:5001/api/comsol-dashboard/kpis?period=${selectedPeriod}`
       );
 
+      
       setCards([
         {
           title: "Total Requests",
@@ -63,10 +64,10 @@ const KPICards = ({ selectedPeriod }) => {
           iconColor: "text-violet-600",
         },
         {
-          title: "Unique Features",
-          value: data.uniqueFeatures.value,
-          change: data.uniqueFeatures.change,
-          positive: data.uniqueFeatures.positive,
+          title: "Modules Used",
+          value: data.uniqueModules.value,
+          change: data.uniqueModules.change,
+          positive: data.uniqueModules.positive,
           icon: LayoutGrid,
           iconBg: "bg-orange-100",
           iconColor: "text-orange-500",
@@ -110,7 +111,10 @@ transition
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center ${card.iconBg}`}
                 >
-                  <Icon size={18} className={card.iconColor} />
+                  <Icon
+                    size={18}
+                    className={card.iconColor}
+                  />
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -126,26 +130,34 @@ transition
 
               <div className="flex items-center mt-4 text-xs">
                 {card.positive ? (
-                  <TrendingUp size={13} className="text-green-600" />
+                  <TrendingUp
+                    size={13}
+                    className="text-green-600"
+                  />
                 ) : (
-                  <TrendingDown size={13} className="text-slate-400" />
+                  <TrendingDown
+                    size={13}
+                    className="text-slate-400"
+                  />
                 )}
 
                 <span
                   className={`ml-1 font-semibold ${
-                    card.positive ? "text-green-600" : "text-slate-500"
+                    card.positive
+                      ? "text-green-600"
+                      : "text-slate-500"
                   }`}
                 >
                   {card.change}
                 </span>
 
                 <span className="ml-1 text-slate-400">
-                  {selectedPeriod === "Daily"
-                    ? "vs last day"
-                    : selectedPeriod === "Weekly"
-                      ? "vs last week"
-                      : "vs last month"}
-                </span>
+  {selectedPeriod === "Daily"
+    ? "vs last day"
+    : selectedPeriod === "Weekly"
+    ? "vs last week"
+    : "vs last month"}
+</span>
               </div>
             </div>
           );
